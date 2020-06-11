@@ -4,16 +4,27 @@ import javax.sound.midi.*;
 import java.util.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.*;
 
 
 public class BeatBox {
 
+    JFrame theFrame;
     JPanel mainPanel;
-    ArrayList<JCheckBox> checkboxList;                           //Where we store the checkboxes
+    JList incomingList;
+    JTextField userMessage;
+    Vector<String> listVector = new Vector<String>();
+    ArrayList<JCheckBox> checkboxList;
+    String userName;
+    ObjectOutputStream out;
+    ObjectInputStream in;
+    HashMap<String, boolean[]> otherSeqsMap = new HashMap<String, boolean[]>();
+
     Sequencer sequencer;
     Sequence sequence;
+    Sequence mySequence;
     Track track;
-    JFrame theFrame;
+
 
     String[] instrumentNames = {"Bass Drum", "Closed Hi-Hat", "Open Hi-Hat", "Acoustic Snare", "Crash Cymbal",
             "Hand Clap", "High Tom", "Hi Bongo", "Maracas", "Whistle", "Low Conga", "Cowbell", "Vibraslap", "Low-mid Tom",
@@ -21,19 +32,34 @@ public class BeatBox {
     int[] instruments = {35, 42, 46, 38, 49, 39, 50, 60, 70, 72, 64, 56, 58, 47, 67, 63};
 
     public static void main(String[] args) {
-        new BeatBox().buildGui();
+        new BeatBox().startUp(args[0]);
+    }
+
+    public void startUp(String name) {
+        userName = name;
+        // open connection to the server
+        try {
+            Socket sock = new Socket("127.0.0.1", 42424);
+            out = new ObjectOutputStream(sock.getOutputStream());
+            in = new ObjectInputStream(sock.getInputStream());
+            Thread remote = new Thread(new RemoteReader());
+            remote.start();
+        }catch (Exception ex) {
+            System.out.println("couldn't connect - you'll have to play alone.");
+        }
+        setUpMidi();
+        buildGui();
     }
 
     public void buildGui() {
-        theFrame = new JFrame("Cyber Beatbox");             //Give the window a title
-        theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //Exit program on close
+        theFrame = new JFrame("Cyber BeatBox");             //Give the window a title
         BorderLayout layout = new BorderLayout();                //Create a border layout
         JPanel background = new JPanel(layout);                  //Set the panel layout style to borderlayout
         background.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add spacing
 
         checkboxList = new ArrayList<JCheckBox>();               //Where we store the checkboxes
-        Box buttonBox = new Box(BoxLayout.Y_AXIS);               //Set the buttons in a vertical layout
 
+        Box buttonBox = new Box(BoxLayout.Y_AXIS);               //Set the buttons in a vertical layout
         JButton start = new JButton("Start");               //Create Start button
         start.addActionListener(new MyStartListener());          //Give it an actionListener
         buttonBox.add(start);                                    //Add it to the buttonBox
@@ -54,13 +80,19 @@ public class BeatBox {
         clear.addActionListener(new MyClearListener());
         buttonBox.add(clear);
 
-        JButton serializeIt = new JButton("serializeIt");
-        serializeIt.addActionListener(new MySendListener());
-        buttonBox.add(serializeIt);
+        JButton sendIt = new JButton("sendIt");
+        sendIt.addActionListener(new MySendListener());
+        buttonBox.add(sendIt);
 
-        JButton restore = new JButton("restore");
-        restore.addActionListener(new MyReadInListener());
-        buttonBox.add(restore);
+        userMessage = new JTextField();
+        buttonBox.add(userMessage);
+
+        incomingList = new JList();
+        incomingList.addListSelectionListener(new MyListSelectionListener());
+        incomingList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JScrollPane theList = new JScrollPane(incomingList);
+        buttonBox.add(theList);
+        incomingList.setListData(listVector);
 
         Box nameBox = new Box(BoxLayout.Y_AXIS);                 //Create a box to store the instrument name labels
         for (int i = 0; i < 16; i++) {                           //Loop 16 times for each instrument label
