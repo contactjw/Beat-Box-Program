@@ -18,7 +18,8 @@ A beat box synthesizer created in Java using the MIDI, I/O, and Networking libra
     % java BeatBox userName\
     **NOTE: We are taking a command line argument here for your preferred username, so just enter a name after BeatBox**
     
-6.) The application should open in a window and you will be able to produce beats, save beats, send beats, and more.  To send\     message to other users, just create a beat, and type a message in the upper textfield, and hit sendIt.
+6.) The application should open in a window and you will be able to produce beats, save beats, send beats, and more.\
+    To send a message to other users, just create a beat, and type a message in the upper textfield, and hit sendIt.
 
 7.) To load another user's beat, simply click on their message in the chat box!
 
