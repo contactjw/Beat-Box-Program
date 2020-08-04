@@ -1,5 +1,5 @@
 # Beat-Box-Program
-A beat box synthesizer created in Java using the MIDI, I/O, and Networking libraries in order to provide the user with a chat room to share beats they've produced, save beats (serialization), and more functionality. (THIS PROGRAM DOES NOT INCLUDE ALL SOUND FILES ON MAC, AS MAC IS LACKING THE REQUIRED MIDI FILES IT WILL STILL PLAY, BUT WITH LIMITED BEATS).
+A beat box synthesizer created in Java using Multi-threading, MIDI, I/O, and Networking libraries in order to provide the user with a chat room to share beats they've produced, save beats (serialization), and more functionality. (THIS PROGRAM DOES NOT INCLUDE ALL SOUND FILES ON MAC, AS MAC IS LACKING THE REQUIRED MIDI FILES IT WILL STILL PLAY, BUT WITH LIMITED BEATS).
 
 
 **How To Run the Program:**
